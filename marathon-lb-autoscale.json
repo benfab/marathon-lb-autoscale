@@ -1,20 +1,57 @@
 {
-  "id": "marathon-lb-autoscale",
-  "args":[
-    "--marathon", "http://leader.mesos:8080",
-    "--haproxy", "http://marathon-lb.marathon.mesos:9090",
-    "--target-rps", "1000",
-    "--apps", "nginx0_10000,nginx1_10001"
-  ],
+  "id": "/demo/autoscaling/marathon-lb-autoscale",
+  "cmd": null,
   "cpus": 0.1,
-  "mem": 16.0,
+  "mem": 16,
+  "disk": 0,
   "instances": 1,
   "container": {
     "type": "DOCKER",
+    "volumes": [],
     "docker": {
-      "image": "mesosphere/marathon-lb-autoscale",
+      "image": "nexus.mydomain.com/marathon-lb-autoscale",
       "network": "HOST",
+      "portMappings": null,
+      "privileged": false,
+      "parameters": [],
       "forcePullImage": true
     }
-  }
+  },
+  "portDefinitions": [
+    {
+      "port": 10029,
+      "protocol": "tcp",
+      "labels": {}
+    }
+  ],
+   "args": [
+    "--marathon",
+    "http://marathon:8080",
+    "--marathonCredentials",
+    "user:password",
+    "--haproxy",
+    "http://mohaproxy:9090",
+    "--apps",
+    "demo_autoscaling_autoscalingflaskviewer_10022",
+    "--target-rps",
+    "1",
+    "--interval",
+    "1",
+    "--sample",
+    "1",
+    "--cooldown",
+    "10",
+    "--haproxy_frontend_or_backend",
+    "BACKEND",
+    "--max-instances",
+    "20"
+  ],
+  "fetch": [
+    {
+      "uri": "file:///etc/docker.tar.gz",
+      "extract": true,
+      "executable": false,
+      "cache": false
+    }
+  ]
 }
