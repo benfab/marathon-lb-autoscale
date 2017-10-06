@@ -12,7 +12,19 @@ scale the app.
 
 ![Incredible diagram](https://raw.github.com/mesosphere/marathon-lb-autoscale/master/marathon-lb-autoscale.png)
 
-## How do I use it?
+# How do I use it?
+
+
+## 1. Build the marathon-lb-autoscale container
+
+```
+  docker build -t nexus.mydomain.com:14000/marathon-lb-autoscale .
+  docker push nexus.mydomain.com:14000>/marathon-lb-autoscale
+```
+
+## 2. Deploy the autoscaler service on Marathon 
+
+Use the app definiton marathon-lb-autoscale.json and adjust the payload to suit you need with the options below:
 
 ```
 Usage: autoscale.rb [options]
@@ -40,27 +52,31 @@ Specific options:
 Common options:
     -h, --help                       Show this message
 ```
+## 3. Test the autoscaler
 
-## Running on Marathon
+install the AB benchmark
+```
+yum install httpd-tools
+```
 
-```json
-{
-  "id": "marathon-lb-autoscale",
-  "args":[
-    "--marathon", "http://leader.mesos:8080",
-    "--haproxy", "http://marathon-lb.marathon.mesos:9090",
-    "--apps", "nginx_10000"
-  ],
-  "cpus": 0.1,
-  "mem": 16.0,
-  "instances": 1,
-  "container": {
-    "type": "DOCKER",
-    "docker": {
-      "image": "mesosphere/marathon-lb-autoscale",
-      "network": "HOST",
-      "forcePullImage": true
-    }
-  }
-}
+Run the benchmark 
+```
+ab -n <nb-requests> -c <nb-concurrent-session>  http://<app-vhost>/
+```
+
+example
+```
+ab -n 50000000 -c 100 http://autoscale.mydomain.com/
+
+```
+
+Pay attention to the tailing slash caracter to the URL.
+
+From Marathon, watch the number of instances.
+
+## 4. Autoscaler logs
+
+The autoscaler logs are available on Graylog using the image tag as search. 
+```
+"nexus.mydomain.com:14000/marathon-lb-autoscale"
 ```
